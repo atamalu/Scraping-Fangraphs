@@ -1,4 +1,4 @@
-# Scraping-Fangraphs
+# Web Scraping FanGraphs
 Here is my tutorial on web scraping data from FanGraphs.com. This is meant for experienced beginners and above. If you'd prefer, you can also just use the [finished functions](Finished_Functions.R).
 
 * Part 1: [Url Construction](Pt_1_Url_Construction.md)
