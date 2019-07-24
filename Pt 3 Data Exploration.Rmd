@@ -1,0 +1,14 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+
+
+There are a ton of questions that we can ask this data, but let's start with the focus on top players.
+
+We're working with season-level data, so all of the following interpretations are in the context of the season.
+
+```{r}
+
+```

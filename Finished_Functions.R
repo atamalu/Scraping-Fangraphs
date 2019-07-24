@@ -4,13 +4,17 @@ suppressMessages(library(dplyr))
 ##### From Pt. 1: Url Construction ---------------
 
 ### construct url for gathering data
-fg_url <- function(Stats, Type, Pos = 'all', Lg = 'all', Qual = 'y', Season = 2019, Season1 = 2019, Team = 0, Rost = 0, Age = 0, Players = 0, Month = 0, Ind = 0, Max.results = 30){
+fg_url <- function(Stats, Type, Pos = 'all', Lg = 'all', 
+                   Qual = 'y', Season = 2019, Season1 = 2019, 
+                   Team = 0, Rost = 0, Age = 0, Players = 0, 
+                   Month = 0, Ind = 0, Max.results = 2000, 
+                   Start.date = '', End.date = ''){
   
-  # Construct url
-  url <- sprintf('https://www.fangraphs.com/leaders.aspx?pos=%s&stats=%s&lg=%s&qual=%s&type=%d&season=%d&month=%d&season1=%d&ind=%d&team=%d&rost=%d&age=%d&filter=&players=%s&page=1_%d',
-                 Pos, Stats, Lg, Qual, Type, Season, Month, Season1, Ind, Team, Rost, Age, Players, Max.results)
+  ### Construct url
+  url <- sprintf('https://www.fangraphs.com/leaders.aspx?pos=%s&stats=%s&lg=%s&qual=%s&type=%d&season=%d&month=%d&season1=%d&ind=%d&team=%d&rost=%d&age=%d&filter=&players=%s&startdate=%s&enddate=%s&page=1_%d',
+                 Pos, Stats, Lg, Qual, Type, Season, Month, Season1, Ind, Team, Rost, Age, Players, Start.date, End.date, Max.results)
   
-  # Return url
+  ### Return url
   return(url)
   
 }

@@ -6,11 +6,11 @@ FanGraphs Functions Pt.2: Data Acquisition and Cleaning
 In part 1, we made a function to construct an url based on your desired
 parameters. We now have 2 options on how to get this data into R: using
 the download link or scraping the table manually. Since a download link
-is not always available, we will go with the latter method. <BR> Let’s
-start by loading the required functions. <BR>
+is not always available, we will go with the latter method. <BR> <BR>
+Let’s start by loading the required functions. <BR>
 
 ``` r
-source('Finished Functions.R') # function from pt.1 
+source('Finished_Functions.R') # function from pt.1 
 suppressMessages(library(rvest)) # for scraping
 suppressMessages(library(dplyr))
 
@@ -48,14 +48,14 @@ head(df, 4)
 
     ##   X1               X2      X3 X4  X5 X6 X7  X8 X9    X10    X11  X12   X13
     ## 2  #             Name    Team  G  PA HR  R RBI SB    BB%     K%  ISO BABIP
-    ## 4  1   Cody Bellinger Dodgers 68 293 22 53  57  8 15.0 % 14.7 % .339  .355
-    ## 5  2 Christian Yelich Brewers 63 279 26 56  56 16 14.7 % 17.2 % .403  .331
-    ## 6  3       Mike Trout  Angels 67 298 18 53  44  7 21.1 % 17.8 % .321  .290
+    ## 4  1       Mike Trout  Angels 94 420 32 77  79  8 18.8 % 17.6 % .364  .295
+    ## 5  2   Cody Bellinger Dodgers 97 418 34 79  77  9 15.1 % 15.6 % .358  .323
+    ## 6  3 Christian Yelich Brewers 92 411 35 77  76 23 14.1 % 18.7 % .381  .345
     ##    X14  X15  X16  X17  X18  X19  X20  X21 X22
     ## 2  AVG  OBP  SLG wOBA wRC+  BsR  Off  Def WAR
-    ## 4 .355 .451 .694 .459  191 -0.7 34.2  5.4 4.8
-    ## 5 .342 .444 .745 .469  192  3.2 36.9 -0.7 4.4
-    ## 6 .281 .453 .603 .429  177  3.5 32.5  1.8 4.4
+    ## 4 .300 .448 .664 .446  187  4.5 51.2  1.6 6.6
+    ## 5 .332 .433 .691 .447  183 -0.8 45.0  4.2 6.1
+    ## 6 .337 .438 .718 .458  185  4.4 50.4 -2.6 5.9
 
 This reveals header names in the first row, so let’s make them our data
 frame’s column names then remove that row.
@@ -68,15 +68,15 @@ head(df, 4)
 ```
 
     ##   #             Name    Team  G  PA HR  R RBI SB    BB%     K%  ISO BABIP
-    ## 4 1   Cody Bellinger Dodgers 68 293 22 53  57  8 15.0 % 14.7 % .339  .355
-    ## 5 2 Christian Yelich Brewers 63 279 26 56  56 16 14.7 % 17.2 % .403  .331
-    ## 6 3       Mike Trout  Angels 67 298 18 53  44  7 21.1 % 17.8 % .321  .290
-    ## 7 4     Alex Bregman  Astros 69 307 19 47  48  3 16.9 % 12.4 % .272  .247
+    ## 4 1       Mike Trout  Angels 94 420 32 77  79  8 18.8 % 17.6 % .364  .295
+    ## 5 2   Cody Bellinger Dodgers 97 418 34 79  77  9 15.1 % 15.6 % .358  .323
+    ## 6 3 Christian Yelich Brewers 92 411 35 77  76 23 14.1 % 18.7 % .381  .345
+    ## 7 4  Xander Bogaerts Red Sox 97 438 21 77  76  3 12.8 % 18.3 % .255  .346
     ##    AVG  OBP  SLG wOBA wRC+  BsR  Off  Def WAR
-    ## 4 .355 .451 .694 .459  191 -0.7 34.2  5.4 4.8
-    ## 5 .342 .444 .745 .469  192  3.2 36.9 -0.7 4.4
-    ## 6 .281 .453 .603 .429  177  3.5 32.5  1.8 4.4
-    ## 7 .272 .401 .545 .395  155 -0.3 21.0  1.4 3.3
+    ## 4 .300 .448 .664 .446  187  4.5 51.2  1.6 6.6
+    ## 5 .332 .433 .691 .447  183 -0.8 45.0  4.2 6.1
+    ## 6 .337 .438 .718 .458  185  4.4 50.4 -2.6 5.9
+    ## 7 .313 .400 .568 .401  148  2.3 29.5  4.0 4.8
 
 Now we have our table\! Since rvest trims leading and trailing
 whitespaces by default, we have to convert columns with numbers in them
@@ -97,9 +97,12 @@ df[4:length(df)] <- sapply(df[4:length(df)], function(x) as.numeric(gsub('[^0-9\
 The `sapply` command is used to go over each specified column (4 to the
 end here) and format it as numeric. We add `\\.` and `\\-` at the end of
 our regex expression to indicate that decimal points and negative signs
-should be kept during conversion. <BR> <BR> \#\# Functions Since data
-you find online is almost always messy, we should make a couple
-formatting functions to make things faster in the future.
+should be kept during conversion. <BR> <BR>
+
+## Functions
+
+Since data you find online is almost always messy, we should make a
+couple formatting functions to make things faster in the future.
 
 ``` r
 ### Format numbers in cells
@@ -116,7 +119,7 @@ format_colnames <- function(x) {
 ```
 
 Now let’s write a function that retrieves a table using any url
-parameters we might want. In this case, we can use piping from the
+parameters we might want. In this case, we will use piping from the
 `dplyr` package to make the code more readable.
 
 ``` r
@@ -150,12 +153,62 @@ head(fg_table(Url = url), 4)
 ```
 
     ##   num             Name    Team  G  PA HR  R RBI SB BBperc Kperc   ISO
-    ## 4   1   Cody Bellinger Dodgers 68 293 22 53  57  8   15.0  14.7 0.339
-    ## 5   2 Christian Yelich Brewers 63 279 26 56  56 16   14.7  17.2 0.403
-    ## 6   3       Mike Trout  Angels 67 298 18 53  44  7   21.1  17.8 0.321
-    ## 7   4     Alex Bregman  Astros 69 307 19 47  48  3   16.9  12.4 0.272
+    ## 4   1       Mike Trout  Angels 94 420 32 77  79  8   18.8  17.6 0.364
+    ## 5   2   Cody Bellinger Dodgers 97 418 34 79  77  9   15.1  15.6 0.358
+    ## 6   3 Christian Yelich Brewers 92 411 35 77  76 23   14.1  18.7 0.381
+    ## 7   4  Xander Bogaerts Red Sox 97 438 21 77  76  3   12.8  18.3 0.255
     ##   BABIP   AVG   OBP   SLG  wOBA wRCplus  BsR  Off  Def WAR
-    ## 4 0.355 0.355 0.451 0.694 0.459     191 -0.7 34.2  5.4 4.8
-    ## 5 0.331 0.342 0.444 0.745 0.469     192  3.2 36.9 -0.7 4.4
-    ## 6 0.290 0.281 0.453 0.603 0.429     177  3.5 32.5  1.8 4.4
-    ## 7 0.247 0.272 0.401 0.545 0.395     155 -0.3 21.0  1.4 3.3
+    ## 4 0.295 0.300 0.448 0.664 0.446     187  4.5 51.2  1.6 6.6
+    ## 5 0.323 0.332 0.433 0.691 0.447     183 -0.8 45.0  4.2 6.1
+    ## 6 0.345 0.337 0.438 0.718 0.458     185  4.4 50.4 -2.6 5.9
+    ## 7 0.346 0.313 0.400 0.568 0.401     148  2.3 29.5  4.0 4.8
+
+`fg_table` can also be used to acquire data for each day a list of
+dates. If we look over a span of consecutive days, we can get a more
+detailed idea of player performance over time. When you enter a start
+and end date, FanGraphs automatically aggregates the data for that time
+range instead of providing game-by-game statistics. We can gather the
+data in the latter form by making a vector of dates…
+
+``` r
+day.vec <- seq.Date(from = as.Date('2019-06-01'), 
+                       to = as.Date('2019-06-14'),
+                       by ='day')
+day.vec <- as.character(day.vec) # convert back to character vec
+```
+
+…and looping over them as both the start and end date of our functions.
+This is can be done using the index of each date.
+
+``` r
+big.list <- list()
+inds <- 1:length(day.vec) # indices
+
+for(i in inds){
+  
+  url <- fg_url(Stats = 'bat', Type = 8, 
+              Qual = '0', 
+              Month = 1000, # month = 1000 allows custom date range
+              Max.results = 1000,
+              Start.date = day.vec[[i]], 
+              End.date = day.vec[[i]])
+  big.list[[i]] <- fg_table(url)
+  
+  print(paste('finished with day', i))
+  
+}
+
+df <- do.call(rbind, big.list) # combine data frames in list
+```
+
+Last, let’s write our csv to file for use in part 3. We will allow a
+dynamic input of dates for the file name, so we do not have to type the
+date range each time. These are easily found using the first and last
+indices of the date
+vector.
+
+``` r
+file.name <- paste('FG', day.vec[[1]], 'thru', day.vec[[length(day.vec)]], '.csv')
+
+write.csv(df, file.name)
+```

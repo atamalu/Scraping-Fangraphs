@@ -7,6 +7,7 @@ output: github_document
 
 In part 1, we made a function to construct an url based on your desired parameters. We now have 2 options on how to get this data into R: using the download link or scraping the table manually. Since a download link is not always available, we will go with the latter method.
 <BR>
+<BR>
 Let's start by loading the required functions.
 <BR>
 ```{r}
@@ -60,7 +61,9 @@ df[4:length(df)] <- sapply(df[4:length(df)], function(x) as.numeric(gsub('[^0-9\
 The `sapply` command is used to go over each specified column (4 to the end here) and format it as numeric. We add `\\.` and `\\-` at the end of our regex expression to indicate that decimal points and negative signs should be kept during conversion.
 <BR>
 <BR>
+
 ## Functions
+
 Since data you find online is almost always messy, we should make a couple formatting functions to make things faster in the future.
 ```{r}
 ### Format numbers in cells

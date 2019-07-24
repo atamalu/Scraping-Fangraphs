@@ -46,6 +46,7 @@ The fact that each parameter in the link is labeled makes it relatively easy to 
 <BR>
 * `page` gives the range of players for the current page. Change this to 2000+ to get all players for most queries.
 <BR>
+* `startdate` and `enddate` are for specifying a range of dates to gather aggregated data for. `month` must be set to 1000
 
 #### Starting the function
 We won't mess around with all of these url parameters, but they will be included of the function to demonstrate the beauty of the `sprintf` function. We start with writing a skeleton of our function that returns the url of our desired query. The less significant parameters can be pre-stated by using `parameter = value`.
