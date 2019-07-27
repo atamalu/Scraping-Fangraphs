@@ -1,0 +1,15 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r}
+source('Finished_Functions.R') # load functions
+
+url <- fg_url(Stats = 'bat', Type = 8) # url from part 1, but with more observations
+df <- fg_table(Url = url) # table from part 2
+```
+
+```{r}
+
+```

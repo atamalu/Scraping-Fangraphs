@@ -134,7 +134,9 @@ for(i in inds){
               Max.results = 1000,
               Start.date = day.vec[[i]], 
               End.date = day.vec[[i]])
-  big.list[[i]] <- fg_table(url)
+  
+  big.list[[i]] <- fg_table(url) # add to list
+  big.list[[i]]$Date <- day.vec[[i]]
   
   print(paste('finished with day', i))
   

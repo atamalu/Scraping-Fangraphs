@@ -3,12 +3,65 @@ title: "Untitled"
 output: github_document
 ---
 
+We will look at specific statistics and the correlations among them. 
 
+### Aggregated data
 
-There are a ton of questions that we can ask this data, but let's start with the focus on top players.
-
-We're working with season-level data, so all of the following interpretations are in the context of the season.
+Aggregated/summarized data is great for visualization. We can start at the "macroscopic" level of the league and teams. We use the `ggplot2` package for plotting because this tends to be the easiest way when dealing with grouping. The default theme is questionable, so add `theme_bw` to the `theme_set` function 
 
 ```{r}
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+
+source('Finished_Functions.R')
+
+url <- fg_url(Stats = 'bat', Type = 8, 
+              Qual = '20', # arbitrary; a little under half of avg PA
+              Month = 1000, 
+              Max.results = 1000,
+              Start.date = '2019-06-01',
+              End.date = '2019-06-14')
+
+df <- fg_table(url)
+  
+```
+
+We start by looking at a histogram of the data to see the frequencies of batting averages, along with a formal test for normality.
+
+```{r}
+ggplot(df) + 
+  geom_histogram(aes(AVG))
+
+shapiro.test(df$AVG)
 
 ```
+
+The data looks like it is normally-distributed across the league. This is backed by the Shapiro-Wilk test of normality (any p-value above 0.05 is typically considered normal). 
+
+There's a pretty big drop in the number of players around a certain average around 0.350. We will consider this the "exceptional" range relative to the rest of the league.
+
+```{r}
+df.top <- df %>%
+  filter(AVG > .350)
+
+nrow(df.top) 
+```
+
+We can add text to the scatterplot to visualize how well the players are performing relative to each other. A lower number of plate appearances leaves less chances for a bad game or 2 (.000 batting avg.) to deflate your batting average. So we also want to consider the number of PA's a player had in this span of time. To do this on our graph, we add a transparency gradient.
+
+```{r}
+library(ggrepel)
+
+ggplot(df.best) +
+  geom_point(aes(x = iso, y = ISO)) +
+  geom_text_repel(aes(x = SLG, y = AVG, 
+                   label = Name, alpha = PA)) +
+  theme(
+    panel.grid.minor = element_blank() # for cleaner look
+    )
+```
+
+Fun fact: we are looking at the ISO stat in the above graph. ISO stands for "isolated power" and is calculated as SLG - AVG.
+
+### 2. Team performance

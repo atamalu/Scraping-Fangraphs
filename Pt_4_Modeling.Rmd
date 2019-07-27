@@ -1,0 +1,94 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+Baseball is a very variable game. Especially in the sense that players get on hot or cold streaks. Additionally, there are factors such as the impact of the team's performance on a player's batting statistics and difficulty of schedule. 
+
+Now, we have the data to look at these factors. It is important to note that one should device hypotheses <i>before</i> looking at the data. This is not nearly as important for our informal examination, but it is good practice and helps avoid personal bias when looking at the data. 
+
+### 1. Player performance 
+
+##### Basic model
+
+We will ignore external factors and assumptions for now, and force a simple regression model with all of the aggregated data.
+
+```{r}
+library(purrr)
+library(tidyr)
+source('Finished_Functions.R')
+
+url <- fg_url(Stats = 'bat', Type = 8, 
+              Qual = '0', 
+              Month = 1000, # month = 1000 allows custom date range
+              Max.results = 1000,
+              Start.date = day.vec[[i]], 
+              End.date = day.vec[[i]])
+  
+test.df <- fg_table(
+  fg_url(Stats = 'bat', Type = 8,
+         Qual = '0',
+         Month = 1000,
+         Max.results = 1000,
+         Start.date = day.vec)
+  )
+df2 <- df %>%
+  group_by(Name, Team) %>%
+  filter(n() > 5) # keep players with 5 (arbitrary) or more observations
+
+a <- df %>%
+  group_by(Name) %>% 
+  nest() %>%            
+  mutate(n = 5) %>% 
+  mutate(samp = map2(data, n, sample_n)) %>% 
+  select(Name, samp) %>%
+  unnest()
+```
+
+We want to make <i>an interpretable model</i> that measures the impact of the past 2 weeks of player batting average on the next game. We can account for team and 
+
+There are a few ways to approach this, but we can answer both questions using an <i>autocorrelative function</i> (ACF). The "lag" represents the gap in times being considered. So a lag of 1 would measure the correlation between values that are a 1 time-period apart. 
+
+To look at the individual level, we start by looking at a subset of players. 
+```{r}
+library(dplyr)
+
+df <- read.csv('FG 2019-06-01 thru 2019-06-14 .csv', header = TRUE)
+
+df <- df %>% 
+  filter(G == 1 & PA > 1) # filter out double-headers and pinch-hits
+
+big.list <- list()
+p.names <- c('Anthony Rizzo', 'Mike Trout', 'Christian Yelich',
+             'Matt Olson', 'Teoscar Hernandez')
+
+for(nm in p.names){
+  
+  d <- df %>% filter(Name == nm)
+  d.ts <- as.ts(data.frame(AVG = d$AVG))
+  
+  rownames(d.ts) <- d$Date
+  ac <- acf(d.ts, lag.max = nrow(d) - 1, plot = FALSE, type = 'partial')
+  
+  big.list[[nm]] <- ac
+  
+}
+
+a <- df %>% filter(Name == 'Anthony Rizzo')
+
+b <- a %>% select(AVG, Date)
+b <- as.ts(b)
+
+acf(b, lag.max=12)
+acf_resid(m1AR1, split_pred = c("Subject", "Trial"))
+```
+
+We get a correlation of 1 at a lag of 0 because it is correlating that date with the same date. We're more concerned about which points where the lag is above 1 and the line of statistical significance.
+
+Measuring the ACF should be done with data points of equal intervals. However, it is often the case that we do not have access to the information that provides the best answer. Fortunately, we are looking at player performance <i>across games played</i> and not days. By considering these days equally-spaced instead of looking at game-by-game, we will miss out on a few factors, such as how much rest a player has between games. The result is that our interpretations are restricted to day-by-day.
+
+
+### 2. Team performance
+
+Next, we want to see if the performance of other players affects
+Giving each team their own intercept/slope takes external factors into consideration, such as the fact that players on the same team face the same pitchers. However, the significance of these individual factors cannot be found unless they are also measured. We cannot assume that pitcher difficulty is what is being measured. But if it is a factor, the variance that results from it will be considered by this approach.
