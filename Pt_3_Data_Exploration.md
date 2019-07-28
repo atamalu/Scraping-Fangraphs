@@ -1,7 +1,8 @@
-Untitled
+FanGraphs Functions Pt.3: Data Exploration
 ================
 
-We will look at specific statistics and the correlations among them.
+We will look at specific baseball statistics and the correlations among
+them.
 
 ### Aggregated data
 
@@ -54,7 +55,7 @@ The data looks like it is normally-distributed across the league. This
 is backed by the Shapiro-Wilk test of normality (any p-value above 0.05
 is typically considered normal).
 
-There’s a pretty big drop in the number of players around a certain
+There’s a pretty big drop in the number of players around an individual
 average around 0.350. We will consider this the “exceptional” range
 relative to the rest of the league.
 
@@ -106,20 +107,22 @@ best batting average for the first 2 weeks of June?
 df.team <- df %>%
   group_by(Team) %>%
   summarize(Mn.AVG = mean(AVG),
-            Mn.SLG = mean(SLG)) %>%
+            Mn.SLG = mean(SLG),
+            Sd.AVG = sd(AVG),
+            Sd.SLG = sd(SLG)) %>%
   arrange(desc(Mn.AVG))
 
 head(df.team, 5)
 ```
 
-    ## # A tibble: 5 x 3
-    ##   Team    Mn.AVG Mn.SLG
-    ##   <chr>    <dbl>  <dbl>
-    ## 1 Pirates  0.301  0.489
-    ## 2 Twins    0.290  0.557
-    ## 3 Rockies  0.286  0.458
-    ## 4 Red Sox  0.286  0.499
-    ## 5 Marlins  0.275  0.417
+    ## # A tibble: 5 x 5
+    ##   Team    Mn.AVG Mn.SLG Sd.AVG Sd.SLG
+    ##   <chr>    <dbl>  <dbl>  <dbl>  <dbl>
+    ## 1 Pirates  0.301  0.489 0.0647 0.108 
+    ## 2 Twins    0.290  0.557 0.0705 0.131 
+    ## 3 Rockies  0.286  0.458 0.105  0.277 
+    ## 4 Red Sox  0.286  0.499 0.0775 0.142 
+    ## 5 Marlins  0.275  0.417 0.0593 0.0969
 
 ##### Q2: distribution of averages
 
@@ -162,50 +165,22 @@ p + geom_vline(data = df.perc,
                linetype = 'dashed',
                color = 'red') +
   geom_vline(data = df.perc,
-               aes(xintercept = med),
-               linetype = 'dashed',
-             color = 'black') +
-  geom_vline(data = df.perc,
                aes(xintercept = sev5th),
                linetype = 'dashed',
              color = 'red')
 ```
 
 ![](Pt_3_Data_Exploration_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-The teams that we want to look at are below the 25th percentile and
+<BR> The teams that we want to look at are below the 25th percentile and
 above the 75th percentile. This will help us arbitrarily label and
-contrast “good” vs. “bad” performance. So now we filter the data to keep
-only those teams.
+contrast “good” vs. “bad” team performance. So now we code these teams
+in tiers accordingly: lower, middle (between these limits), upper.
 
 ``` r
-df.teamfilt <- df.team[df.team$Mn.AVG < df.perc$twen5th |
-                         df.team$Mn.AVG > df.perc$sev5th, ]
-
-nrow(df.teamfilt)
+df.team$Tier <- ifelse(df.team$Mn.AVG < df.perc$twen5th, 'Lower',
+                           ifelse(df.team$Mn.AVG > df.perc$sev5th,
+                                  'Upper', 'Middle'))
 ```
-
-    ## [1] 16
-
-Now we’re down to 16 teams. We label them as “top” teams or “bottom”
-teams.
-
-``` r
-df.teamfilt$TopBot <- ifelse(df.teamfilt$Mn.AVG < df.perc$twen5th, 'Bottom', 'Top')
-
-head(df.teamfilt)
-```
-
-    ## # A tibble: 6 x 4
-    ##   Team    Mn.AVG Mn.SLG TopBot
-    ##   <chr>    <dbl>  <dbl> <chr> 
-    ## 1 Pirates  0.301  0.489 Top   
-    ## 2 Twins    0.290  0.557 Top   
-    ## 3 Rockies  0.286  0.458 Top   
-    ## 4 Red Sox  0.286  0.499 Top   
-    ## 5 Marlins  0.275  0.417 Top   
-    ## 6 Brewers  0.274  0.487 Top
-
-simple stats: avg vs. slg on team runs per game
 
 ##### Q3:
 
@@ -218,24 +193,34 @@ ggplot(df) +
   geom_point(aes(x = Team, y = AVG))
 ```
 
-![](Pt_3_Data_Exploration_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Pt_3_Data_Exploration_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 On second thought, it’s really hard to objectively describe the
-dispersion of data points using just a boxplot. Instead, we can find the
-standard deviation for each group. - \[move this somewhere higher\] -
+dispersion of data points using just a boxplot.
 
-#### 
+Let’s say that we expect the typical distance from the team average to
+be lower on teams that are on a “hot streak”. We can look at the
+standard deviations from the team means to measure this. In theory, this
+may occur because the opposing teams don’t want to waste good closing
+pitchers after being down a lot of runs, or it could be from some sort
+of psychological effect.
 
-To start, we’ll look at the within-team effect on batting average.
+So now we look at the standard deviations for each team and label
+according to tier.
 
 ``` r
-#by(xx[,2:3], xx$group, function(x) {cor(x$a, x$b)}
+### order bars in descending order
+df.team$Team <- factor(df.team$Team, 
+                       levels = df.team$Team[order(-df.team$Sd.AVG)])
+
+ggplot(df.team %>% arrange(desc(Tier))) +
+  geom_bar(aes(x = Team, y = Sd.AVG, fill = Tier), 
+           stat = 'identity') +
+  scale_x_discrete()
 ```
 
-##### Q2:
+![](Pt_3_Data_Exploration_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-  - look at bar graphs with values inside to see how correlations behave
-    within teams
-
-  - 
-### 3\. What teams have
+This graph suggests that team performance probably isn’t affected by the
+performance of the rest of the team. However, we can measure this
+empirically using a hierarchical mixed effects model.
