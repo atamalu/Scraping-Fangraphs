@@ -8,5 +8,14 @@ Here is my tutorial on web scraping data from FanGraphs.com. This is meant for e
 * Part 2: [Data Acquisition and Cleaning](Pt_2_Data_Acquisition_and_Cleaning.md)
 
   - covers using the function from part 1 to retrieve that data and make it usable
+  
+* Part 3: [Data Exploration](Pt_3_Data_Exploration.md)
+
+  - various visualizations leading up to hypotheses
+  
+* Part 4: [Data Analysis]
+
+  - multilevel modeling
+  - coming soon
 
 Out of respect for the site, please utilize `write.csv` and `read.csv` as much as possible!
